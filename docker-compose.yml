@@ -1,0 +1,152 @@
+---
+version: "2"
+services:
+  ddclient:
+    container_name: ddclient
+    environment:
+      - PGID=1000
+      - TZ=America/New_York
+    image: linuxserver/ddclient:latest
+    restart: unless-stopped
+    volumes:
+      - /opt/docker_vols/ddclient:/config
+  hoobs:
+    container_name: hoobs
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    image: hoobs/hoobs:latest
+    networks:
+      lan:
+        ipv4_address: 192.168.0.34
+    ports:
+      - 51826:51826/tcp
+      - 8080:8080/tcp
+      - 8181:8181/tcp
+    restart: unless-stopped
+    volumes:
+      - /opt/docker_vols/hoobs:/hoobs
+  letsencrypt:
+    container_name: letsencrypt
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - 'TZ=America/New_York'
+      - URL=jd0p.com
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare
+    image: linuxserver/letsencrypt:latest
+    networks:
+      - mybridge
+    ports:
+      - 443:443/tcp
+      - 80:80/tcp
+    restart: unless-stopped
+    volumes:
+      - /opt/docker_vols/letsencrypt:/config
+  plex:
+    container_name: plex
+    environment:
+      - VERSION=docker
+    image: linuxserver/plex:latest
+    networks:
+      - mybridge
+    ports:
+      - 32400:32400/tcp
+    restart: unless-stopped
+    volumes:
+      - /opt/docker_vols/plex:/config
+      - /mnt/shared/tvshows:/tvshows
+      - /mnt/shared/movies:/movies
+      - /mnt/shared/downloads:/downloads
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:latest
+    networks:
+      - mybridge
+    ports:
+      - 8000:8000/tcp
+      - 9000:9000/tcp
+    restart: unless-stopped
+    volumes:
+      - /opt/docker_vols/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock     
+  timemachine:
+    command:
+      - /entrypoint.sh
+    container_name: timemachine
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - AFP_LOGIN=jdopson
+      - 'AFP_PASSWORD=${PASSWORD}'
+      - AFP_NAME=timemachine
+    image: odarriba/timemachine:latest
+    networks:
+      - mybridge
+    ports:
+      - 548:548/tcp
+      - 636:636/tcp
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        hard: 65536
+        soft: 65536
+    volumes:
+      - /mnt/timemachine:/timemachine
+  transmission:
+    cap_add:
+      - NET_ADMIN
+    container_name: transmission
+    environment:
+      - 'OPENVPN_USERNAME=jdopson@gmail.com'
+      - OPENVPN_PASSWORD=${PASSWORD}
+      - 'LOCAL_NETWORK=192.168.0.0/24'
+      - CREATE_TUN_DEVICE=true
+      - OPENVPN_PROVIDER=CUSTOM
+    hostname: transmission
+    image: haugene/transmission-openvpn:latest
+    networks:
+      - mybridge
+    ports:
+      - 9091:9091/tcp
+    restart: unless-stopped
+    volumes:
+      - /mnt/shared/downloads:/downloads
+      - /mnt/shared/transmission:/data
+      - /opt/docker_vols/transmission:/config
+      - /opt/docker_vols/transmission/config.ovpn:/etc/openvpn/custom/default.ovpn
+  zoneminder:
+    container_name: zoneminder
+    image: dlandon/zoneminder:latest
+    restart: unless-stopped
+    ports:
+      - 8443:443/tcp
+      - 9001:9000/tcp
+    networks:
+      - mybridge
+    privileged: true
+    environment:
+      - TZ=America/New_York
+      - SHMEM=50%
+      - PUID=99
+      - PGID=100
+      - INSTALL_HOOK=0
+      - INSTALL_FACE=0
+      - INSTALL_TINY_YOLO=0
+      - INSTALL_YOLO=0
+      - MULTI_PORT_START=0
+      - MULTI_PORT_END=0
+    volumes:
+      - /opt/docker_vols/zoneminder_config:/config:rw
+      - /mnt/zoneminder:/var/cache/zoneminder:rw
+networks:
+  mybridge:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
+
