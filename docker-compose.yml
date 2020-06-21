@@ -33,7 +33,7 @@ services:
       - PUID=1000
       - PGID=1000
       - 'TZ=America/New_York'
-      - URL=jd0p.com
+      - URL=${URL}
       - SUBDOMAINS=wildcard
       - VALIDATION=dns
       - DNSPLUGIN=cloudflare
@@ -80,7 +80,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - AFP_LOGIN=jdopson
+      - AFP_LOGIN=${USER}
       - 'AFP_PASSWORD=${PASSWORD}'
       - AFP_NAME=timemachine
     image: odarriba/timemachine:latest
@@ -101,7 +101,7 @@ services:
       - NET_ADMIN
     container_name: transmission
     environment:
-      - 'OPENVPN_USERNAME=jdopson@gmail.com'
+      - 'OPENVPN_USERNAME=${EMAIL}'
       - OPENVPN_PASSWORD=${PASSWORD}
       - 'LOCAL_NETWORK=192.168.0.0/24'
       - CREATE_TUN_DEVICE=true
