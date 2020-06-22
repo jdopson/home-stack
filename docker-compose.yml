@@ -116,8 +116,9 @@ services:
     volumes:
       - /mnt/shared/downloads:/downloads
       - /mnt/shared/transmission:/data
-      - /opt/docker_vols/transmission:/config
+      - /opt/docker_vols/transmission/config:/config
       - /opt/docker_vols/transmission/config.ovpn:/etc/openvpn/custom/default.ovpn
+      - /opt/docker_vols/transmission/data:/data/transmission-home/torrents/
   zoneminder:
     container_name: zoneminder
     image: dlandon/zoneminder:latest

@@ -1,0 +1,28 @@
+#cloud-config
+
+rancher:
+ network:
+  interfaces:
+   eth0:
+    address: 192.168.0.20/24
+    gateway: 192.168.0.1
+    dhcp: false
+  dns:
+   nameservers:
+    - 192.168.0.1
+    - 8.8.4.4
+  mounts:
+  - - /dev/sdb
+    - /mnt/zoneminder
+    - xfs
+    - ""
+  - - /dev/sdc
+    - /mnt/timemachine
+    - ext4
+    - ""
+  - - /dev/sdd
+    - /mnt/shared
+    - ext4
+    - ""
+ssh_authorized_keys:
+ - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZ1lhyY/pjkCzUokpAXmKt50zUT2VGmqNaxgg1i8I+7YaaKR+HmJrI+umkoZWAdvJCRxy45ZNTurFyke2eq2EDp4meCsN0YoElyIeQ7jpjKvrZAb/XSSMXGakctcuKCYjcZUaVDqaC+4EGmJFRBktiEAVtlQw4VgPHzJFt3qMsd6GiazUdH2z+HVkJY6ZkhorxKmg3jSWKx/EQdgavpJtA92OA2f9CiFXZ2OVTtMe9BNovwHYTfFam5Wu9XgWdaC7kkOFVEzU1WTkhS+Pb5okEYuszJ2wIWmpKrx19fVE2UQ6LgT2v7QzOxlv0sdCsRsSXPi1Bab6gxyJG6Y2QH64V
