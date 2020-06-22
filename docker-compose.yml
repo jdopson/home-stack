@@ -19,7 +19,7 @@ services:
     image: hoobs/hoobs:latest
     networks:
       lan:
-        ipv4_address: 192.168.0.34
+        ipv4_address: ${HOOBS_IP}
     ports:
       - 51826:51826/tcp
       - 8080:8080/tcp
@@ -33,7 +33,7 @@ services:
       - PUID=1000
       - PGID=1000
       - 'TZ=America/New_York'
-      - URL=${URL}
+      - URL=${HOME_URL}
       - SUBDOMAINS=wildcard
       - VALIDATION=dns
       - DNSPLUGIN=cloudflare
@@ -80,8 +80,8 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - AFP_LOGIN=${USER}
-      - 'AFP_PASSWORD=${PASSWORD}'
+      - AFP_LOGIN=${TIMEMACHINE_USER}
+      - 'AFP_PASSWORD=${TIMEMACHINE_PASS}'
       - AFP_NAME=timemachine
     image: odarriba/timemachine:latest
     networks:
@@ -101,9 +101,9 @@ services:
       - NET_ADMIN
     container_name: transmission
     environment:
-      - 'OPENVPN_USERNAME=${EMAIL}'
-      - OPENVPN_PASSWORD=${PASSWORD}
-      - 'LOCAL_NETWORK=192.168.0.0/24'
+      - 'OPENVPN_USERNAME=${TORGUARD_USER}'
+      - OPENVPN_PASSWORD=${TORGUARD_PASS}
+      - 'LOCAL_NETWORK=${LOCAL_NET}/24'
       - CREATE_TUN_DEVICE=true
       - OPENVPN_PROVIDER=CUSTOM
     hostname: transmission
@@ -131,8 +131,8 @@ services:
     environment:
       - TZ=America/New_York
       - SHMEM=50%
-      - PUID=99
-      - PGID=100
+      - PUID=1000
+      - PGID=1000
       - INSTALL_HOOK=0
       - INSTALL_FACE=0
       - INSTALL_TINY_YOLO=0
