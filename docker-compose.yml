@@ -9,7 +9,7 @@ services:
     image: linuxserver/ddclient:latest
     restart: unless-stopped
     volumes:
-      - /opt/docker_vols/ddclient:/config
+      - /mnt/docker_vols/ddclient/config:/config
   hoobs:
     container_name: hoobs
     environment:
@@ -26,14 +26,16 @@ services:
       - 8181:8181/tcp
     restart: unless-stopped
     volumes:
-      - /opt/docker_vols/hoobs:/hoobs
+      - /mnt/docker_vols/hoobs/hoobs:/hoobs
   letsencrypt:
+    cap_add:
+      - NET_ADMIN
     container_name: letsencrypt
     environment:
       - PUID=1000
       - PGID=1000
       - 'TZ=America/New_York'
-      - URL=${HOME_URL}
+      - URL=${HOME_HOSTNAME}
       - SUBDOMAINS=wildcard
       - VALIDATION=dns
       - DNSPLUGIN=cloudflare
@@ -45,19 +47,20 @@ services:
       - 80:80/tcp
     restart: unless-stopped
     volumes:
-      - /opt/docker_vols/letsencrypt:/config
+      - /mnt/docker_vols/letsencrypt/config:/config
   plex:
     container_name: plex
     environment:
       - VERSION=docker
     image: linuxserver/plex:latest
     networks:
-      - mybridge
+      lan: 
+        ipv4_address: ${PLEX_IP}
     ports:
       - 32400:32400/tcp
     restart: unless-stopped
     volumes:
-      - /opt/docker_vols/plex:/config
+      - /mnt/docker_vols/plex/config:/config
       - /mnt/shared/tvshows:/tvshows
       - /mnt/shared/movies:/movies
       - /mnt/shared/downloads:/downloads
@@ -71,7 +74,7 @@ services:
       - 9000:9000/tcp
     restart: unless-stopped
     volumes:
-      - /opt/docker_vols/portainer:/data
+      - /mnt/docker_vols/portainer/data:/data
       - /var/run/docker.sock:/var/run/docker.sock     
   timemachine:
     command:
@@ -115,10 +118,10 @@ services:
     restart: unless-stopped
     volumes:
       - /mnt/shared/downloads:/downloads
-      - /mnt/shared/transmission:/data
-      - /opt/docker_vols/transmission/config:/config
-      - /opt/docker_vols/transmission/config.ovpn:/etc/openvpn/custom/default.ovpn
-      - /opt/docker_vols/transmission/data:/data/transmission-home/torrents/
+      - /mnt/shared/transmission/data:/data
+      - /mnt/docker_vols/transmission/config:/config
+      - /mnt/docker_vols/transmission/config.ovpn:/etc/openvpn/custom/default.ovpn
+      - /mnt/docker_vols/transmission/data:/data/transmission-home/torrents/
   zoneminder:
     container_name: zoneminder
     image: dlandon/zoneminder:latest
@@ -141,8 +144,8 @@ services:
       - MULTI_PORT_START=0
       - MULTI_PORT_END=0
     volumes:
-      - /opt/docker_vols/zoneminder_config:/config:rw
-      - /mnt/zoneminder:/var/cache/zoneminder:rw
+      - /mnt/docker_vols/zoneminder/config:/config:rw
+      - /mnt/zoneminder/cache:/var/cache/zoneminder:rw
 networks:
   mybridge:
     driver: bridge
@@ -150,4 +153,11 @@ networks:
       config:
         - subnet: 172.16.238.0/24
           gateway: 172.16.238.1
-
+  lan:
+    driver: macvlan
+    driver_opts:
+      parent: ${LAN_INTERFACE}
+    ipam:
+      config:
+        - subnet: 192.168.0.0/24
+          gateway: 192.168.0.1
