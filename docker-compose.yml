@@ -99,6 +99,42 @@ services:
         soft: 65536
     volumes:
       - /mnt/timemachine:/timemachine
+  radarr:
+    container_name: radarr
+    hostname: radarr
+    image: linuxserver/radarr:latest
+    networks:
+      - mybridge
+    ports:
+      - 7878:7878/tcp
+    restart: unless-stopped
+    volumes:
+      - /mnt/docker_vols/radarr/config:/config
+      - /mnt/shared:/shared
+  sonarr:
+    container_name: sonarr
+    hostname: sonarr
+    image: linuxserver/sonarr:latest
+    networks:
+      - mybridge
+    ports:
+      - 8989:8989/tcp
+    restart: unless-stopped
+    volumes:
+      - /mnt/docker_vols/sonarr/config:/config
+      - /mnt/shared:/shared
+      - /dev/rtc:/dev/rtc
+  jackett:
+    container_name: jackett
+    hostname: jackett
+    image: linuxserver/jackett:latest
+    networks:
+      - mybridge
+    ports:
+      - 9117:9117/tcp
+    restart: unless-stopped
+    volumes:
+      - /mnt/docker_vols/jackett/config:/config
   transmission:
     cap_add:
       - NET_ADMIN
@@ -109,6 +145,12 @@ services:
       - 'LOCAL_NETWORK=${LOCAL_NET}/24'
       - CREATE_TUN_DEVICE=true
       - OPENVPN_PROVIDER=CUSTOM
+      - TRANSMISSION_DOWNLOAD_DIR=/download
+      - TRANSMISSION_IDLE_SEEDING_LIMIT=1
+      - TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED=true
+      - TRANSMISSION_RATIO_LIMIT=1
+      - TRANSMISSION_RATIO_LIMIT_ENABLED=true
+      - TRANSMISSION_SEED_QUEUE_SIZE=3
     hostname: transmission
     image: haugene/transmission-openvpn:latest
     networks:
